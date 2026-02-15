@@ -791,15 +791,6 @@ function PaymentPluginContent() {
       }
     };
 
-    const handleVisibilityChange = () => {
-      // Refresh when page becomes visible again after being hidden
-      if (!document.hidden && window.location.pathname.includes('/payment-plugin')) {
-        // Small delay to ensure page is fully visible
-        setTimeout(() => {
-          window.location.href = '/dashboard/balance';
-        }, 100);
-      }
-    };
 
     // Intercept sidebar and logo navigation clicks
     const handleNavigationClick = (e: MouseEvent) => {
@@ -873,16 +864,12 @@ function PaymentPluginContent() {
     // Listen for browser back/forward buttons
     window.addEventListener('popstate', handlePopState);
     
-    // Listen for visibility changes
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
     // Listen for navigation clicks (sidebar, logo, etc.)
     document.addEventListener('click', handleNavigationClick, true); // Use capture phase
 
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
       window.removeEventListener('popstate', handlePopState);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
       document.removeEventListener('click', handleNavigationClick, true);
       cleanupRouter();
     };
