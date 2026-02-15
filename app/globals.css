@@ -170,3 +170,25 @@ body,
   pointer-events: none;
   user-select: none;
 }
+
+/* Isolate Fawaterak payment container to prevent iframe from affecting page layout */
+#fawaterkDivId {
+  isolation: isolate !important;
+  contain: layout style paint !important;
+  position: relative !important;
+  z-index: 0 !important;
+  overflow: hidden !important;
+  transform: translateZ(0) !important;
+  will-change: contents !important;
+}
+
+/* Isolate any iframes within the payment container */
+#fawaterkDivId iframe {
+  isolation: isolate !important;
+  contain: layout style paint !important;
+  position: relative !important;
+  z-index: 0 !important;
+  transform: translateZ(0) !important;
+  will-change: contents !important;
+  overflow: hidden !important;
+}

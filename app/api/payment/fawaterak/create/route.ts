@@ -21,8 +21,10 @@ export async function POST(req: NextRequest) {
     // Check if this is a plugin proxy request
     const isPluginProxy = req.headers.get("X-Plugin-Proxy") === "true";
 
+    // Allow both plugin proxy and direct requests (for fallback)
     if (!isPluginProxy) {
-      return new NextResponse("Invalid request", { status: 400 });
+      // If not plugin proxy, still allow but log it
+      console.log("[FAWATERAK_CREATE] Direct request (not plugin proxy)");
     }
 
     const invoiceData = await req.json();
@@ -38,8 +40,22 @@ export async function POST(req: NextRequest) {
       console.error("[FAWATERAK_CREATE] Error parsing payLoad:", e);
     }
 
+    // Determine the correct Fawaterak endpoint based on the request
+    // The plugin might call different endpoints (createInvoiceLink, invoiceInitPay, etc.)
+    let fawaterakEndpoint = '/createInvoiceLink'; // Default
+    
+    // Check if the request has a specific endpoint in the headers
+    const originalUrl = req.headers.get('X-Original-URL') || '';
+    if (originalUrl.includes('invoiceInitPay') || originalUrl.includes('initPay')) {
+      fawaterakEndpoint = '/invoiceInitPay';
+    } else if (originalUrl.includes('createInvoice')) {
+      fawaterakEndpoint = '/createInvoiceLink';
+    }
+    
+    console.log("[FAWATERAK_CREATE] Using endpoint:", fawaterakEndpoint, "Original URL:", originalUrl);
+    
     // Create invoice via Fawaterak API
-    const response = await fetch(`${FAWATERAK_API_URL}/createInvoiceLink`, {
+    const response = await fetch(`${FAWATERAK_API_URL}${fawaterakEndpoint}`, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${FAWATERAK_API_KEY}`,
@@ -64,11 +80,31 @@ export async function POST(req: NextRequest) {
 
     if (result.data) {
       invoiceKey = result.data.invoice_key || result.data.invoiceKey || result.data.invoice_id || null;
-      invoiceUrl = result.data.invoiceUrl || result.data.frame_url || result.data.invoice_url || result.data.url || null;
+      
+      // Check multiple possible locations for invoice URL
+      invoiceUrl = result.data.invoiceUrl || 
+                   result.data.frame_url || 
+                   result.data.invoice_url || 
+                   result.data.url ||
+                   result.data.payment_data?.redirectTo || // New format: payment_data.redirectTo
+                   result.data.payment_data?.redirect_to ||
+                   result.data.payment_data?.url ||
+                   result.data.redirectTo ||
+                   result.data.redirect_to ||
+                   null;
     } else if (result.invoice_key || result.invoiceKey) {
       // Response might be flat
       invoiceKey = result.invoice_key || result.invoiceKey || result.invoice_id || null;
-      invoiceUrl = result.invoiceUrl || result.frame_url || result.invoice_url || result.url || null;
+      invoiceUrl = result.invoiceUrl || 
+                   result.frame_url || 
+                   result.invoice_url || 
+                   result.url ||
+                   result.payment_data?.redirectTo ||
+                   result.payment_data?.redirect_to ||
+                   result.payment_data?.url ||
+                   result.redirectTo ||
+                   result.redirect_to ||
+                   null;
     }
 
     if (!invoiceUrl) {
@@ -116,7 +152,14 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Return consistent structure with invoice URL
+    // Return response in the exact format Fawaterak API returns
+    // The plugin expects the response structure to match Fawaterak's format
+    if (isPluginProxy) {
+      // For plugin proxy, return the exact Fawaterak response structure
+      return NextResponse.json(result);
+    }
+    
+    // For direct requests, return consistent structure
     return NextResponse.json({
       success: true,
       data: {

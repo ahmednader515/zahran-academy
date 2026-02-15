@@ -30,6 +30,18 @@ const nextConfig = {
         protocol: 'https',
         hostname: '**.r2.cloudflarestorage.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'fawaterk.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'staging.fawaterk.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'app.fawaterk.com',
+      },
     ],
   },
   serverExternalPackages: ['@prisma/client', 'bcrypt'],

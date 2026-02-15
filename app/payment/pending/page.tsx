@@ -13,6 +13,17 @@ function PaymentPendingContent() {
   const paymentId = searchParams.get("payment");
 
   useEffect(() => {
+    // Notify parent window if in iframe
+    if (window.parent !== window) {
+      window.parent.postMessage(
+        {
+          type: "FAWATERAK_PAYMENT_PENDING",
+          paymentId: paymentId,
+        },
+        "*"
+      );
+    }
+
     // Store in sessionStorage
     if (paymentId) {
       sessionStorage.setItem("paymentStatus", JSON.stringify({

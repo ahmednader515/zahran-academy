@@ -22,9 +22,9 @@ export const Footer = () => {
   const hasSidebar = pathname?.startsWith('/dashboard') || pathname?.startsWith('/courses');
   
   return (
-    <footer className="py-6 border-t">
+    <footer className="py-6 border-t border-border bg-background">
       <div className="container mx-auto px-4">
-        <div className={`text-center text-muted-foreground ${
+        <div className={`text-center text-foreground ${
           hasSidebar 
             ? 'md:rtl:pr-56 md:ltr:pl-56 lg:rtl:pr-80 lg:ltr:pl-80' 
             : ''
@@ -33,7 +33,7 @@ export const Footer = () => {
             <p className="font-semibold text-lg text-brand"> واتساب : 01044785362</p>
           </div>
           
-          <p>© {new Date().getFullYear()} Mordesu Studio. جميع الحقوق محفوظة</p>
+          <p className="text-foreground">© {new Date().getFullYear()} Mordesu Studio. جميع الحقوق محفوظة</p>
         </div>
       </div>
     </footer>

@@ -34,11 +34,11 @@ export async function POST(req: NextRequest) {
       return new NextResponse("Invalid hash key", { status: 401 });
     }
 
-    // Only process paid invoices
-    if (invoice_status !== "paid") {
+    // Only process paid invoices (case-insensitive check)
+    if (invoice_status !== "paid" && invoice_status !== "Paid" && invoice_status !== "PAID") {
       return NextResponse.json({
-        success: false,
-        message: `Invoice status is ${invoice_status}, not paid`,
+        success: true,
+        message: "Status is not paid, ignoring",
       });
     }
 
@@ -54,19 +54,31 @@ export async function POST(req: NextRequest) {
       console.error("[FAWATERAK_WEBHOOK] Error parsing pay_load:", e);
     }
 
-    // Find payment by invoice_key or paymentId
+    // Find payment by invoice_key or paymentId (multiple strategies)
     let payment = null;
     
+    // Strategy 1: Find by invoice key
     if (invoice_key) {
       payment = await db.payment.findUnique({
         where: { fawaterakInvoiceId: invoice_key },
+        include: { user: true },
       });
     }
     
+    // Strategy 2: Find by paymentId from pay_load
     if (!payment && paymentId) {
       payment = await db.payment.findUnique({
         where: { id: paymentId },
+        include: { user: true },
       });
+      
+      // Update payment with invoice key for future lookups
+      if (payment && invoice_key && !payment.fawaterakInvoiceId) {
+        await db.payment.update({
+          where: { id: payment.id },
+          data: { fawaterakInvoiceId: invoice_key },
+        });
+      }
     }
 
     if (!payment) {
@@ -92,20 +104,15 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Update user balance
-    const user = await db.user.findUnique({
+    // Update user balance using atomic increment operation
+    const updatedUser = await db.user.update({
       where: { id: payment.userId },
-    });
-
-    if (!user) {
-      return new NextResponse("User not found", { status: 404 });
-    }
-
-    const newBalance = user.balance + payment.amount;
-
-    await db.user.update({
-      where: { id: payment.userId },
-      data: { balance: newBalance },
+      data: {
+        balance: {
+          increment: payment.amount, // Prisma atomic increment operation
+        },
+      },
+      select: { balance: true },
     });
 
     // Create balance transaction
@@ -121,7 +128,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       paymentId: payment.id,
-      newBalance,
+      newBalance: updatedUser.balance,
     });
   } catch (error) {
     console.error("[FAWATERAK_WEBHOOK]", error);
