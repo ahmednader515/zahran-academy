@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams, useParams } from "next/navigation";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Link as LinkIcon, XCircle } from "lucide-react";
+import { CheckCircle, Link as LinkIcon, XCircle, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 interface PaymentResponse {
@@ -14,7 +14,7 @@ interface PaymentResponse {
   };
 }
 
-const PaymentStatusPage = () => {
+const PaymentStatusPageContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const routeParams = useParams();
@@ -185,6 +185,24 @@ const PaymentStatusPage = () => {
         </Button>
       </div>
     </div>
+  );
+};
+
+const PaymentStatusPage = () => {
+  return (
+    <Suspense
+      fallback={
+        <div className="h-full flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
+            <h1 className="text-2xl font-bold mb-2">جاري التحميل...</h1>
+            <p className="text-muted-foreground">الرجاء الانتظار</p>
+          </div>
+        </div>
+      }
+    >
+      <PaymentStatusPageContent />
+    </Suspense>
   );
 };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,7 +17,7 @@ declare global {
   }
 }
 
-export default function PaymentPluginPage() {
+function PaymentPluginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session } = useSession();
@@ -259,5 +259,26 @@ export default function PaymentPluginPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function PaymentPluginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="p-6">
+          <Card>
+            <CardContent className="py-12">
+              <div className="flex flex-col items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-brand mb-4" />
+                <p className="text-muted-foreground">جاري التحميل...</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      }
+    >
+      <PaymentPluginContent />
+    </Suspense>
   );
 }

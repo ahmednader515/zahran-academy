@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Clock, ArrowLeft } from "lucide-react";
+import { Clock, ArrowLeft, Loader2 } from "lucide-react";
 
-export default function PaymentPendingPage() {
+function PaymentPendingContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [countdown, setCountdown] = useState(5);
@@ -76,6 +76,27 @@ export default function PaymentPendingPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function PaymentPendingPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-background p-4">
+          <Card className="w-full max-w-md">
+            <CardContent className="py-12">
+              <div className="flex flex-col items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-brand mb-4" />
+                <p className="text-muted-foreground">جاري التحميل...</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      }
+    >
+      <PaymentPendingContent />
+    </Suspense>
   );
 }
 
