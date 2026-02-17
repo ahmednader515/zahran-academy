@@ -26,7 +26,7 @@ const playpenSansArabic = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "منصة أ/هشام زهران",
+  title: "منصة MR/ Hesham Zahran",
   description: "منصة تعليمية متكاملة",
 };
 

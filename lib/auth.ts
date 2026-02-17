@@ -64,6 +64,7 @@ export const authOptions: AuthOptions = {
           name: user.fullName,
           phoneNumber: user.phoneNumber,
           role: user.role,
+          studentId: user.studentId,
         } as any;
       },
     }),
@@ -88,6 +89,20 @@ export const authOptions: AuthOptions = {
         session.user.phoneNumber = token.phoneNumber;
         session.user.image = token.picture ?? undefined;
         session.user.role = token.role;
+        session.user.studentId = (token as any).studentId;
+        
+        // Fallback: if studentId is still missing, fetch it from database
+        if (!session.user.studentId && token.id) {
+          const dbUser = await db.user.findUnique({
+            where: { id: token.id as string },
+            select: { studentId: true },
+          });
+          if (dbUser?.studentId) {
+            session.user.studentId = dbUser.studentId;
+            // Also update the token for future requests
+            (token as any).studentId = dbUser.studentId;
+          }
+        }
       }
 
       return session;
@@ -95,6 +110,16 @@ export const authOptions: AuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         // When user first signs in, set the token with user data
+        // If studentId is not in user object, fetch it from database
+        let studentId = (user as any).studentId;
+        if (!studentId && user.id) {
+          const dbUser = await db.user.findUnique({
+            where: { id: user.id },
+            select: { studentId: true },
+          });
+          studentId = dbUser?.studentId;
+        }
+        
         return {
           ...token,
           id: user.id,
@@ -102,10 +127,21 @@ export const authOptions: AuthOptions = {
           phoneNumber: user.phoneNumber,
           picture: (user as any).picture,
           role: user.role,
+          studentId: studentId,
         };
       }
 
-      // On subsequent requests, return the existing token
+      // On subsequent requests, if studentId is missing, fetch it from database
+      if (token.id && !(token as any).studentId) {
+        const dbUser = await db.user.findUnique({
+          where: { id: token.id as string },
+          select: { studentId: true },
+        });
+        if (dbUser?.studentId) {
+          (token as any).studentId = dbUser.studentId;
+        }
+      }
+
       return token;
     },
   },

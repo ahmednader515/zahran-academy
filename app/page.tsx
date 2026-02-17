@@ -124,7 +124,7 @@ export default function HomePage() {
             <div className="relative w-64 h-64 md:w-80 md:h-80">
               <Image
                 src="/teacher-image.png"
-                alt="منصة/ أ/هشام زهران"
+                alt="منصة/ MR/ Hesham Zahran"
                 fill
                 priority
                 className="object-cover rounded-full border-4 border-brand/20 shadow-lg object-[30%_center]"
@@ -241,10 +241,10 @@ export default function HomePage() {
             className="text-center mt-0 md:mt-0 order-2 md:order-1"
           >
             <h1 className="text-4xl md:text-6xl font-bold mb-4">
-            <span className="text-brand">أ/هشام زهران</span>
+            <span className="text-brand">MR/ Hesham Zahran</span>
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground mb-8">
-              طريقك للنجاح و التفوق
+              Turn confusion into confidence
             </p>
             <Button size="lg" asChild className="bg-brand hover:bg-brand/90 text-white">
               <Link href="/sign-up">
@@ -426,7 +426,7 @@ export default function HomePage() {
               {
                 name: "عصام اسامة",
                 grade: "الصف الأول الثانوي",
-                testimonial: "تجربة رائعة مع منصة أ/هشام زهران، المحتوى غني والشرح مبسط"
+                testimonial: "تجربة رائعة مع منصة MR/ Hesham Zahran، المحتوى غني والشرح مبسط"
               },
               {
                 name: "سيف طارق",

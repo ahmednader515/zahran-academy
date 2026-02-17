@@ -250,7 +250,7 @@ const CoursesPage = async () => {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">مرحباً بك في لوحة التحكم</h1>
-        <p className="text-muted-foreground">طريقك للنجاح و التفوق</p>
+        <p className="text-muted-foreground">Turn confusion into confidence</p>
       </div>
 
       {/* Stats and Balance Row */}
