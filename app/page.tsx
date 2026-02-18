@@ -513,7 +513,7 @@ export default function HomePage() {
                 <Star className="h-6 w-6 text-brand" />
               </div>
               <h3 className="text-xl font-semibold mb-2">جودة عالية</h3>
-              <p className="text-muted-foreground">أفضل منصة متخصصة لكورسات اللغة الانجليزية</p>
+              <p className="text-muted-foreground">أفضل منصة متخصصة لكورسات physics</p>
             </motion.div>
 
             <motion.div
